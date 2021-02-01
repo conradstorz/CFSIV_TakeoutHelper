@@ -24,6 +24,8 @@ from pathlib import Path as Path
 import piexif as _piexif
 from fractions import Fraction  # piexif requires some values to be stored as rationals
 import math
+from loguru import logger
+from tqdm import tqdm
 
 if _os.name == "nt":
     import win32_setctime as _windoza_setctime
@@ -161,7 +163,7 @@ def for_all_files_recursive(
     folder_function=lambda __fo: True,
     filter_function=lambda __fl: True,
 ):
-    for directory_item in dir.rglob("*"):
+    for directory_item in tqdm(dir.rglob("*")):
         if directory_item.is_dir():
             folder_function(directory_item)
             continue
@@ -192,7 +194,8 @@ def find_duplicates(path: Path, filter_function=lambda __file: True):
                 continue
             files_by_size[file_size].append(path_item)
     # For all files with the same file size, get their hash on the first 1024 bytes
-    for file_size, files in files_by_size.items():
+    print(f'Checking first chunks of {len(files_by_size.items())} items...')
+    for file_size, files in tqdm(files_by_size.items()):
         if len(files) < 2:
             continue  # this file size is unique, no need to spend cpu cycles on it
         for path_item in files:
@@ -204,7 +207,8 @@ def find_duplicates(path: Path, filter_function=lambda __file: True):
             files_by_small_hash[(file_size, small_hash)].append(path_item)
     # For all files with the hash on the first 1024 bytes, get their hash on the full
     # file - if more than one file is inserted on a hash here they are certainly duplicates
-    for files in files_by_small_hash.values():
+    print(f'Deeper analysis of {len(files_by_small_hash.values())} items...')
+    for files in tqdm(files_by_small_hash.values()):
         if len(files) < 2:
             # the hash of the first 1k bytes is unique -> skip this file
             continue
@@ -218,6 +222,7 @@ def find_duplicates(path: Path, filter_function=lambda __file: True):
     return
 
 
+@logger.catch
 def main():
     # Statistics:
     s_removed_duplicates_count = 0
@@ -631,8 +636,8 @@ def main():
         meta_date = get_date_from_folder_meta(file_obj.parent)
         if meta_date is None:
             meta_date = DATE_NOT_FOUND_DATE
-            print('WARNING! There was literally no option to set date!!!')
-            s_no_date_at_all.append(str(file.resolve()))
+            s_no_date_at_all.append(str(file_obj.resolve()))            
+            print('WARNING! There was literally no option to set date!!!'
             f"Using pre-defined default date: {DATE_NOT_FOUND_DATE}")            
         set_file_exif_date(file_obj, meta_date)
         set_creation_date_from_str(file_obj, meta_date)
