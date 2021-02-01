@@ -135,6 +135,8 @@ def get_hash(file: Path, first_chunk_only=False, hash_algo=_hashlib.sha1):
         file (Path_Obj): File to be hashed.
         first_chunk_only (bool, optional): Hash total file?. Defaults to False.
         hash_algo (Hash Function, optional): Hash routine to use. Defaults to _hashlib.sha1.
+
+    Returns: Hash Value
     """
     def chunk_reader(fobj, chunk_size=1024):
         """ Generator that reads a file in chunks of bytes """

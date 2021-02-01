@@ -1,5 +1,5 @@
-![PyPI](https://img.shields.io/pypi/v/google-photos-takeout-helper)
-[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?logo=paypal)](https://www.paypal.me/TheLastGimbus)
+This is my personal testbed for the code I cloned from TheLastGimbus
+I would have not been able to get where I am without their great work.
 
 # Google Photos Takeout Helper
 ## What is this for?
